@@ -6,7 +6,7 @@
 #define FRAME_SIZE 256
 #define TOTAL_FRAMES 256
 #define PHYSICAL_MEMORY_SIZE (TOTAL_FRAMES * FRAME_SIZE)
-#define ADDRESS_MASK 0xFFFF  // Mask for the rightmost 16 bits
+#define ADDRESS_MASK 0xFFFF  // Mask for the 16 bits
 
 typedef struct {
     int isValid;
@@ -21,17 +21,17 @@ typedef struct {
 PageTableEntry pageTable[PAGE_TABLE_SIZE];
 TLBEntry tlb[TLB_SIZE];
 
-// Function to extract the page number from a logical address
+// Function to extract the page number
 unsigned int getPageNumber(unsigned int logicalAddress) {
     return (logicalAddress >> 8) & 0xFF;  // Extract upper 8 bits
 }
 
-// Function to extract the offset from a logical address
+// Function to offset from a logical address
 unsigned int getOffset(unsigned int logicalAddress) {
     return logicalAddress & 0xFF;  // Extract lower 8 bits
 }
 
-// Function to translate logical to physical address
+// Function to translate logical to physical address taking in page number and offset as parameters
 int translateToPhysicalAddress(unsigned int pageNumber, unsigned int offset) {
     // Implement the translation logic
     // This is a simplified placeholder implementation
@@ -46,21 +46,25 @@ int translateToPhysicalAddress(unsigned int pageNumber, unsigned int offset) {
     return (frameNumber == -1) ? -1 : (frameNumber * FRAME_SIZE) + offset;
 }
 
+
+
 void readLogicalAddresses(const char* filename) {
     FILE* file = fopen(filename, "r");
+    // File is opened in read mode
     if (file == NULL) {
         perror("Error opening file");
         exit(1);
     }
 
     unsigned int logicalAddress;
+    // populates the logical address with address given in the text file. 
     while (fscanf(file, "%u", &logicalAddress) != EOF) {
         unsigned int maskedAddress = logicalAddress & ADDRESS_MASK;
-        unsigned int pageNumber = getPageNumber(maskedAddress);
-        unsigned int offset = getOffset(maskedAddress);
+        unsigned int pageNumber = getPageNumber(maskedAddress); // assigns pageNumber to the pageNumber of the masked address
+        unsigned int offset = getOffset(maskedAddress); // assigns offset to the offset of the masked address
         
         int physicalAddress = translateToPhysicalAddress(pageNumber, offset);
-        printf("Logical: %u, Physical: %d\n", logicalAddress, physicalAddress);
+        printf("Logical: %u, Physical: %d\n", logicalAddress, physicalAddress); // Prints out the logical and physical address after calculation 
     }
 
     fclose(file);
@@ -71,6 +75,7 @@ int main(int argc, char* argv[]) {
         printf("Usage: %s <filename>\n", argv[0]);
         return 1;
     }
+    // This if statement prints out filename that is being used in the current run (in this case it would be addresses.txt)
 
     // Initialize page table
     for (int i = 0; i < PAGE_TABLE_SIZE; i++) {
@@ -78,7 +83,8 @@ int main(int argc, char* argv[]) {
         pageTable[i].frameNumber = i;
     }
 
-    // Read and process logical addresses
+    // Read and process logical addresses. reading and translating from logical to physical are done in one function. 
+    //Prints out the logical and physical addresses
     readLogicalAddresses(argv[1]);
 
     return 0;
