@@ -1,0 +1,10 @@
+unsigned char extract_offset(int address);
+unsigned char extract_page_number(int address);
+void page_fault(unsigned char offset, unsigned char page_number);
+void process_address(unsigned char offset, unsigned char page_number, int address);
+void initialize_pagetable();
+void initialize_frames();
+void initialize_TLB();
+void cleanup();
+int check_pagetable(unsigned char page_number);
+int check_TLB(unsigned char page_number);
